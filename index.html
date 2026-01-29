@@ -68,5 +68,62 @@ function showPage(id){
 }
 </script>
 
+<script>
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+let w, h;
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+const particles = [];
+const TOTAL = 120;
+
+class Particle {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.x = Math.random() * w;
+        this.y = h + Math.random() * 200;
+        this.size = Math.random() * 2 + 1;
+        this.speed = Math.random() * 1.5 + 0.5;
+        this.alpha = Math.random() * 0.5 + 0.3;
+    }
+
+    update() {
+        this.y -= this.speed;
+        if (this.y < -10) this.reset();
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255,0,0,${this.alpha})`;
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < TOTAL; i++) {
+    particles.push(new Particle());
+}
+
+function animate() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+    
 </body>
 </html>
