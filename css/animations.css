@@ -1,1 +1,20 @@
+@keyframes pulse {
+    0% { box-shadow:0 0 30px purple; }
+    50% { box-shadow:0 0 80px purple; }
+    100% { box-shadow:0 0 30px purple; }
+}
 
+@keyframes fogMove {
+    from { transform:translateX(-50px); }
+    to { transform:translateX(50px); }
+}
+
+@keyframes particlesMove {
+    from { background-position:0 100%; }
+    to { background-position:0 0; }
+}
+
+@keyframes lightning {
+    0%,100% { opacity:0.1; }
+    50% { opacity:0.4; }
+}
