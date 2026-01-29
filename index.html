@@ -1,98 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Ordo Realitas VTT</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#6b008f">
+<title>Ordo Realitas</title>
 <link rel="stylesheet" href="css/style.css">
-<script src="js/pwa.js" defer></script>
 </head>
 
 <body>
 
+<!-- FUNDO -->
+<div id="fog"></div>
+<canvas id="particles"></canvas>
+
 <header>
-<h2>🩸 Ordo Realitas</h2>
-<nav>
-<button onclick="UI.show('dice')">🎲 Dados</button>
-<button onclick="UI.show('sheet')">🧍 Ficha</button>
-<button onclick="UI.show('map')">🗺 Mapa</button>
-<button onclick="UI.show('combat')">⚔️ Combate</button>
-<button onclick="UI.show('avatar')">🎨 Avatar</button>
-</nav>
+    <img src="assets/logo-small.png" class="logo-small">
+    <nav>
+        <button onclick="UI.show('home')">Início</button>
+        <button onclick="UI.show('agents')">Agentes</button>
+        <button onclick="UI.show('combat')">Combate</button>
+        <button onclick="UI.show('map')">Mapas</button>
+        <button onclick="UI.show('book')">Livro</button>
+    </nav>
 </header>
 
 <main>
 
-<section id="dice" class="page active">
-<select id="diceType">
-<option value="4">D4</option>
-<option value="8">D8</option>
-<option value="10">D10</option>
-<option value="12">D12</option>
-<option value="20" selected>D20</option>
-<option value="50">D50</option>
-<option value="100">D100</option>
-</select>
-
-<select id="diceQty"></select>
-<button onclick="rollDice()">Rolar</button>
-
-<div id="diceVisual"></div>
-<div id="diceText"></div>
-<h3>Histórico</h3>
-<div id="history"></div>
+<section id="home" class="page active">
+    <div class="logo-big"></div>
+    <h1>Ordo Realitas</h1>
 </section>
 
-<section id="sheet" class="page">
-<h3>Ficha</h3>
-<input id="charName" placeholder="Nome">
-
-<div>Força <input id="forca" type="number" value="3">
-<button onclick="rollAttribute('forca')">Rolar</button></div>
-
-<div>Agilidade <input id="agi" type="number" value="3">
-<button onclick="rollAttribute('agi')">Rolar</button></div>
-
-<h3>🎒 Inventário</h3>
-<input id="itemInput">
-<button onclick="Inventory.add()">Adicionar</button>
-<ul id="inventoryList"></ul>
-</section>
-
-<section id="map" class="page">
-<input type="file" accept="image/*" onchange="Map.upload(event)">
-<canvas id="mapCanvas"></canvas>
+<section id="agents" class="page">
+    <h2>Agentes</h2>
 </section>
 
 <section id="combat" class="page">
-<button onclick="Combat.attack()">Atacar</button>
-<div id="combatLog"></div>
+    <h2>Combate</h2>
 </section>
 
-<section id="avatar" class="page">
-<input type="file" accept="image/*" onchange="Avatar.upload(event)">
-<img id="avatarPreview">
+<section id="map" class="page">
+    <h2>Mapas</h2>
+
+    <div class="map-controls">
+        <input type="file" id="mapUpload" accept="image/*" multiple>
+        <input type="file" id="avatarUpload" accept="image/*" multiple>
+        <select id="mapSelector"></select>
+    </div>
+
+    <div id="mapArea"></div>
+</section>
+
+<section id="book" class="page">
+    <h2>Livro do Jogador</h2>
 </section>
 
 </main>
 
-<div class="audio-controls">
-Volume
-<input type="range" min="0" max="1" step="0.01" onchange="Audio.setVolume(this.value)">
-</div>
-
-<audio id="diceSound" src="assets/dice.mp3"></audio>
-<audio id="ambientSound" src="assets/ambient.mp3" loop autoplay></audio>
-
 <script src="js/ui.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/dice.js"></script>
-<script src="js/character.js"></script>
+<script src="js/particles.js"></script>
 <script src="js/map.js"></script>
-<script src="js/combat.js"></script>
 
 </body>
 </html>
