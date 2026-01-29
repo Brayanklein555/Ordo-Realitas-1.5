@@ -3,23 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <title>Ordo Realitas</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/particles.css">
+<link rel="stylesheet" href="css/animations.css">
 </head>
 
 <body>
 
 <!-- FUNDO -->
-<div id="fog"></div>
-<canvas id="particles"></canvas>
+<div class="fog"></div>
+<div class="particles"></div>
+<div class="lightning"></div>
 
 <header>
     <img src="assets/logo-small.png" class="logo-small">
+    <h2>Ordo Realitas</h2>
+
     <nav>
-        <button onclick="UI.show('home')">Início</button>
-        <button onclick="UI.show('agents')">Agentes</button>
-        <button onclick="UI.show('combat')">Combate</button>
-        <button onclick="UI.show('map')">Mapas</button>
-        <button onclick="UI.show('book')">Livro</button>
+        <button onclick="showPage('home')">Início</button>
+        <button onclick="showPage('agents')">Agentes</button>
+        <button onclick="showPage('map')">Mapas</button>
+        <button onclick="showPage('dice')">Dados</button>
+        <button onclick="showPage('book')">Livro</button>
     </nav>
 </header>
 
@@ -27,47 +35,38 @@
 
 <section id="home" class="page active home">
     <div class="logo-big"></div>
-
     <h1>Ordo Realitas</h1>
-
-    <p class="description">
-        Uma plataforma completa para campanhas de Ordem Paranormal.  
-        Crie personagens, gerencie mapas, role dados, organize fichas,
-        simule combates e leve sua mesa de RPG para o digital — tudo direto
-        do navegador, sem anúncios e sem complicação.
+    <p>
+        Plataforma completa para RPG Ordem Paranormal.
+        Crie personagens, controle mapas, role dados, gerencie fichas e
+        transforme sua mesa em uma experiência digital imersiva.
     </p>
 </section>
 
-
 <section id="agents" class="page">
-    <h2>Agentes</h2>
-</section>
-
-<section id="combat" class="page">
-    <h2>Combate</h2>
+    <h1>Agentes</h1>
 </section>
 
 <section id="map" class="page">
-    <h2>Mapas</h2>
+    <h1>Mapas</h1>
+</section>
 
-    <div class="map-controls">
-        <input type="file" id="mapUpload" accept="image/*" multiple>
-        <input type="file" id="avatarUpload" accept="image/*" multiple>
-        <select id="mapSelector"></select>
-    </div>
-
-    <div id="mapArea"></div>
+<section id="dice" class="page">
+    <h1>Dados</h1>
 </section>
 
 <section id="book" class="page">
-    <h2>Livro do Jogador</h2>
+    <h1>Livro do Jogador</h1>
 </section>
 
 </main>
 
-<script src="js/ui.js"></script>
-<script src="js/particles.js"></script>
-<script src="js/map.js"></script>
+<script>
+function showPage(id){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+</script>
 
 </body>
 </html>
