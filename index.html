@@ -52,7 +52,31 @@
 </section>
 
 <section id="dice" class="page">
-    <h1>Dados</h1>
+    <h1>🎲 Central de Dados</h1>
+
+    <div id="dice-panel">
+
+        <!-- Tipos de dados -->
+        <div id="dice-types"></div>
+
+        <!-- Quantidade -->
+        <div class="dice-controls">
+            <button onclick="changeRollAmount(-1)">➖</button>
+            <span id="roll-amount">1x</span>
+            <button onclick="changeRollAmount(1)">➕</button>
+        </div>
+
+        <!-- Botão rolar -->
+        <button class="roll-btn" onclick="rollDice()">🎲 ROLAR DADOS</button>
+
+        <!-- Resultado -->
+        <div id="dice-result"></div>
+
+        <!-- Histórico -->
+        <h3>📜 Histórico de Rolagens</h3>
+        <div id="dice-history"></div>
+
+    </div>
 </section>
 
 <section id="book" class="page">
@@ -123,6 +147,9 @@ function animate() {
 }
 animate();
 </script>
+
+<script src="js/audio.js"></script>
+<script src="js/dice.js"></script>
 
     
 </body>
