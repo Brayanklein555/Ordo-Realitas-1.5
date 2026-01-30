@@ -109,3 +109,24 @@ main {
     margin-top:20px;
     opacity:0.8;
 }
+/* ================= MAPA ================= */
+
+.map-toolbar {
+    display:flex;
+    gap:15px;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.map-toolbar input {
+    background:#111;
+    color:white;
+}
+
+#mapCanvas {
+    width:100%;
+    height:calc(100vh - 180px);
+    background:#0b000b;
+    border:1px solid purple;
+    cursor:grab;
+}
