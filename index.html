@@ -51,10 +51,14 @@
 
     <h1>🗺️ Mapa de Cenário</h1>
 
-    <div class="map-toolbar">
-        <input type="file" id="mapUpload" accept="image/*">
-        <span>Dica: scroll = zoom | arrastar = mover</span>
-    </div>
+   <div class="map-toolbar">
+    <input type="file" id="mapUpload" accept="image/*" multiple>
+    <input type="file" id="avatarUpload" accept="image/*" multiple>
+    <span>
+        Scroll = zoom | Arrastar = mover mapa | Arrastar token = mover avatar
+    </span>
+</div>
+
 
     <canvas id="mapCanvas"></canvas>
 
