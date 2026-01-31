@@ -1,5 +1,5 @@
 // ===============================
-// 🗺️ MAPA INTERATIVO BASE (ROLL20)
+// 🗺️ MAPA + GRID + RÉGUA (ROLL20)
 // ===============================
 
 const canvas = document.getElementById("mapCanvas");
@@ -19,45 +19,67 @@ resizeCanvas();
 let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
-let isDragging = false;
+let draggingMap = false;
 let startX, startY;
 
-// ===============================
-// MAPAS
-// ===============================
-let maps = [];
-let currentMapIndex = 0;
-
-// ===============================
-// AVATARES
-// ===============================
-let avatars = [];
-let selectedAvatar = null;
+let mapImage = new Image();
+let hasMap = false;
 
 // ===============================
 // GRID
 // ===============================
-const gridSize = 50;
+const gridSize = 50; // px
+const metersPerGrid = 1.5; // 6 grids = 9m
 
 function drawGrid() {
-    ctx.strokeStyle = "rgba(255,0,0,0.15)";
+    ctx.strokeStyle = "rgba(255,0,255,0.2)";
     ctx.lineWidth = 1;
 
-    const scaledGrid = gridSize * scale;
-
-    for (let x = offsetX % scaledGrid; x < cw; x += scaledGrid) {
+    for (let x = -offsetX % (gridSize * scale); x < cw; x += gridSize * scale) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, ch);
         ctx.stroke();
     }
 
-    for (let y = offsetY % scaledGrid; y < ch; y += scaledGrid) {
+    for (let y = -offsetY % (gridSize * scale); y < ch; y += gridSize * scale) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(cw, y);
         ctx.stroke();
     }
+}
+
+// ===============================
+// RÉGUA
+// ===============================
+let rulerActive = false;
+let rulerStart = null;
+let rulerEnd = null;
+
+function toggleRuler() {
+    rulerActive = !rulerActive;
+    rulerStart = rulerEnd = null;
+}
+
+function drawRuler() {
+    if (!rulerStart || !rulerEnd) return;
+
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(rulerStart.x, rulerStart.y);
+    ctx.lineTo(rulerEnd.x, rulerEnd.y);
+    ctx.stroke();
+
+    const dx = rulerEnd.x - rulerStart.x;
+    const dy = rulerEnd.y - rulerStart.y;
+    const distPx = Math.sqrt(dx * dx + dy * dy);
+    const grids = distPx / (gridSize * scale);
+    const meters = (grids * metersPerGrid).toFixed(1);
+
+    ctx.fillStyle = "white";
+    ctx.fillText(`${meters} m`, rulerEnd.x + 5, rulerEnd.y - 5);
 }
 
 // ===============================
@@ -70,16 +92,11 @@ function render() {
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
 
-    if (maps[currentMapIndex]) {
-        ctx.drawImage(maps[currentMapIndex], 0, 0);
-    }
-
-    avatars.forEach(a => {
-        ctx.drawImage(a.img, a.x - 25, a.y - 25, 50, 50);
-    });
+    if (hasMap) ctx.drawImage(mapImage, 0, 0);
 
     ctx.restore();
     drawGrid();
+    drawRuler();
 
     requestAnimationFrame(render);
 }
@@ -95,79 +112,46 @@ canvas.addEventListener("wheel", e => {
 });
 
 // ===============================
-// PAN
+// PAN / RÉGUA
 // ===============================
 canvas.addEventListener("mousedown", e => {
-    isDragging = true;
+    if (rulerActive) {
+        rulerStart = { x: e.offsetX, y: e.offsetY };
+        rulerEnd = null;
+        return;
+    }
+
+    draggingMap = true;
     startX = e.clientX - offsetX;
     startY = e.clientY - offsetY;
-    canvas.style.cursor = "grabbing";
+});
+
+canvas.addEventListener("mousemove", e => {
+    if (rulerActive && rulerStart) {
+        rulerEnd = { x: e.offsetX, y: e.offsetY };
+        return;
+    }
+
+    if (!draggingMap) return;
+    offsetX = e.clientX - startX;
+    offsetY = e.clientY - startY;
 });
 
 window.addEventListener("mouseup", () => {
-    isDragging = false;
-    selectedAvatar = null;
-    canvas.style.cursor = "grab";
-});
-
-window.addEventListener("mousemove", e => {
-    if (!isDragging) return;
-
-    if (selectedAvatar) {
-        selectedAvatar.x = (e.clientX - offsetX) / scale;
-        selectedAvatar.y = (e.clientY - offsetY) / scale;
-    } else {
-        offsetX = e.clientX - startX;
-        offsetY = e.clientY - startY;
-    }
+    draggingMap = false;
 });
 
 // ===============================
-// SELEÇÃO DE AVATAR
-// ===============================
-canvas.addEventListener("mousedown", e => {
-    const x = (e.clientX - offsetX) / scale;
-    const y = (e.clientY - offsetY) / scale;
-
-    avatars.forEach(a => {
-        if (
-            x > a.x - 25 &&
-            x < a.x + 25 &&
-            y > a.y - 25 &&
-            y < a.y + 25
-        ) {
-            selectedAvatar = a;
-        }
-    });
-});
-
-// ===============================
-// UPLOAD MAPAS
+// UPLOAD MAPA
 // ===============================
 document.getElementById("mapUpload").addEventListener("change", e => {
-    [...e.target.files].forEach(file => {
-        const img = new Image();
-        img.onload = () => {
-            maps.push(img);
-            currentMapIndex = maps.length - 1;
-        };
-        img.src = URL.createObjectURL(file);
-    });
-});
+    const file = e.target.files[0];
+    if (!file) return;
 
-// ===============================
-// UPLOAD AVATARES
-// ===============================
-document.getElementById("avatarUpload").addEventListener("change", e => {
-    [...e.target.files].forEach(file => {
-        const img = new Image();
-        img.onload = () => {
-            avatars.push({
-                img,
-                x: 200,
-                y: 200
-            });
-        };
-        img.src = URL.createObjectURL(file);
-    });
+    const reader = new FileReader();
+    reader.onload = ev => {
+        mapImage.src = ev.target.result;
+        hasMap = true;
+    };
+    reader.readAsDataURL(file);
 });
