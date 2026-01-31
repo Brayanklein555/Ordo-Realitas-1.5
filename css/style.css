@@ -143,3 +143,14 @@ main {
     border:1px solid purple;
     cursor:grab;
 }
+/* GARANTE ALTURA DO MAPA */
+#map {
+    height: 100%;
+    position: relative;
+}
+
+/* CANVAS DO MAPA NA FRENTE */
+#mapCanvas {
+    position: relative;
+    z-index: 5;
+}
