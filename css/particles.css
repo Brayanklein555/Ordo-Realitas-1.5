@@ -2,8 +2,8 @@
 #particles {
     position: fixed;
     inset: 0;
+    z-index: 0;
     pointer-events: none;
-    z-index: 1;
 }
 
 /* NEVOA VERMELHA */
@@ -11,28 +11,16 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    height: 280px;
-    background: radial-gradient(circle at center,
-        rgba(255,0,0,0.45),
-        rgba(120,0,0,0.15),
-        transparent 70%);
-    filter: blur(40px);
-    animation: fogMove 12s infinite alternate;
+    height: 40%;
+    background: radial-gradient(circle at bottom, rgba(255,0,0,0.4), transparent);
+    z-index: 1;
     pointer-events: none;
-    z-index: 0;
 }
 
 /* RAIOS */
 .lightning {
     position: fixed;
     inset: 0;
-    background: linear-gradient(
-        120deg,
-        transparent 40%,
-        rgba(170,0,255,0.15),
-        transparent 60%
-    );
-    animation: lightning 5s infinite;
-    pointer-events: none;
     z-index: 2;
+    pointer-events: none;
 }
