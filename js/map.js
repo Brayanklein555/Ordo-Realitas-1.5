@@ -5,13 +5,15 @@
 const canvas = document.getElementById("mapCanvas");
 const ctx = canvas.getContext("2d");
 
-let cw, ch;
+let cw = 0, ch = 0;
+
 function resizeCanvas() {
-    cw = canvas.width = canvas.clientWidth;
-    ch = canvas.height = canvas.clientHeight;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    cw = canvas.width;
+    ch = canvas.height;
 }
 window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
 
 // ===============================
 // ESTADO
@@ -20,7 +22,7 @@ let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
 let draggingMap = false;
-let startX, startY;
+let startX = 0, startY = 0;
 
 let mapImage = new Image();
 let hasMap = false;
@@ -28,11 +30,13 @@ let hasMap = false;
 // ===============================
 // GRID
 // ===============================
-const gridSize = 50; // px
-const metersPerGrid = 1.5; // 6 grids = 9m
+const gridSize = 50;
+const metersPerGrid = 1.5;
 
 function drawGrid() {
-    ctx.strokeStyle = "rgba(255,0,255,0.2)";
+    if (cw === 0 || ch === 0) return;
+
+    ctx.strokeStyle = "rgba(255,0,255,0.25)";
     ctx.lineWidth = 1;
 
     for (let x = -offsetX % (gridSize * scale); x < cw; x += gridSize * scale) {
@@ -79,11 +83,12 @@ function drawRuler() {
     const meters = (grids * metersPerGrid).toFixed(1);
 
     ctx.fillStyle = "white";
-    ctx.fillText(`${meters} m`, rulerEnd.x + 5, rulerEnd.y - 5);
+    ctx.font = "14px Arial";
+    ctx.fillText(`${meters} m`, rulerEnd.x + 6, rulerEnd.y - 6);
 }
 
 // ===============================
-// RENDER
+// RENDER LOOP
 // ===============================
 function render() {
     ctx.clearRect(0, 0, cw, ch);
@@ -115,9 +120,13 @@ canvas.addEventListener("wheel", e => {
 // PAN / RÉGUA
 // ===============================
 canvas.addEventListener("mousedown", e => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
     if (rulerActive) {
-        rulerStart = { x: e.offsetX, y: e.offsetY };
-        rulerEnd = null;
+        rulerStart = { x, y };
+        rulerEnd = { x, y };
         return;
     }
 
@@ -127,8 +136,12 @@ canvas.addEventListener("mousedown", e => {
 });
 
 canvas.addEventListener("mousemove", e => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
     if (rulerActive && rulerStart) {
-        rulerEnd = { x: e.offsetX, y: e.offsetY };
+        rulerEnd = { x, y };
         return;
     }
 
@@ -137,9 +150,7 @@ canvas.addEventListener("mousemove", e => {
     offsetY = e.clientY - startY;
 });
 
-window.addEventListener("mouseup", () => {
-    draggingMap = false;
-});
+window.addEventListener("mouseup", () => draggingMap = false);
 
 // ===============================
 // UPLOAD MAPA
@@ -155,3 +166,8 @@ document.getElementById("mapUpload").addEventListener("change", e => {
     };
     reader.readAsDataURL(file);
 });
+
+// ===============================
+// FORÇA RESIZE AO ENTRAR NA ABA
+// ===============================
+setTimeout(resizeCanvas, 100);
