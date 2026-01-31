@@ -14,6 +14,7 @@ function resizeCanvas() {
     ch = canvas.height;
 }
 window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 // ===============================
 // ESTADO
@@ -34,22 +35,25 @@ const gridSize = 50;
 const metersPerGrid = 1.5;
 
 function drawGrid() {
-    if (cw === 0 || ch === 0) return;
-
     ctx.strokeStyle = "rgba(255,0,255,0.25)";
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1 / scale;
 
-    for (let x = -offsetX % (gridSize * scale); x < cw; x += gridSize * scale) {
+    const startX = -offsetX / scale;
+    const startY = -offsetY / scale;
+    const endX = startX + cw / scale;
+    const endY = startY + ch / scale;
+
+    for (let x = Math.floor(startX / gridSize) * gridSize; x < endX; x += gridSize) {
         ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, ch);
+        ctx.moveTo(x, startY);
+        ctx.lineTo(x, endY);
         ctx.stroke();
     }
 
-    for (let y = -offsetY % (gridSize * scale); y < ch; y += gridSize * scale) {
+    for (let y = Math.floor(startY / gridSize) * gridSize; y < endY; y += gridSize) {
         ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(cw, y);
+        ctx.moveTo(startX, y);
+        ctx.lineTo(endX, y);
         ctx.stroke();
     }
 }
@@ -70,7 +74,7 @@ function drawRuler() {
     if (!rulerStart || !rulerEnd) return;
 
     ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 / scale;
     ctx.beginPath();
     ctx.moveTo(rulerStart.x, rulerStart.y);
     ctx.lineTo(rulerEnd.x, rulerEnd.y);
@@ -78,13 +82,23 @@ function drawRuler() {
 
     const dx = rulerEnd.x - rulerStart.x;
     const dy = rulerEnd.y - rulerStart.y;
-    const distPx = Math.sqrt(dx * dx + dy * dy);
-    const grids = distPx / (gridSize * scale);
+    const distWorld = Math.sqrt(dx * dx + dy * dy);
+    const grids = distWorld / gridSize;
     const meters = (grids * metersPerGrid).toFixed(1);
 
     ctx.fillStyle = "white";
-    ctx.font = "14px Arial";
-    ctx.fillText(`${meters} m`, rulerEnd.x + 6, rulerEnd.y - 6);
+    ctx.font = `${14 / scale}px Arial`;
+    ctx.fillText(`${meters} m`, rulerEnd.x + 8 / scale, rulerEnd.y - 8 / scale);
+}
+
+// ===============================
+// UTIL
+// ===============================
+function screenToWorld(x, y) {
+    return {
+        x: (x - offsetX) / scale,
+        y: (y - offsetY) / scale
+    };
 }
 
 // ===============================
@@ -98,10 +112,10 @@ function render() {
     ctx.scale(scale, scale);
 
     if (hasMap) ctx.drawImage(mapImage, 0, 0);
-
-    ctx.restore();
     drawGrid();
     drawRuler();
+
+    ctx.restore();
 
     requestAnimationFrame(render);
 }
@@ -121,12 +135,12 @@ canvas.addEventListener("wheel", e => {
 // ===============================
 canvas.addEventListener("mousedown", e => {
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
 
     if (rulerActive) {
-        rulerStart = { x, y };
-        rulerEnd = { x, y };
+        rulerStart = screenToWorld(sx, sy);
+        rulerEnd = rulerStart;
         return;
     }
 
@@ -137,11 +151,11 @@ canvas.addEventListener("mousedown", e => {
 
 canvas.addEventListener("mousemove", e => {
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
 
     if (rulerActive && rulerStart) {
-        rulerEnd = { x, y };
+        rulerEnd = screenToWorld(sx, sy);
         return;
     }
 
@@ -166,8 +180,3 @@ document.getElementById("mapUpload").addEventListener("change", e => {
     };
     reader.readAsDataURL(file);
 });
-
-// ===============================
-// FORÇA RESIZE AO ENTRAR NA ABA
-// ===============================
-setTimeout(resizeCanvas, 100);
